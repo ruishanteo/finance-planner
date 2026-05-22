@@ -21,12 +21,12 @@ npm run dev
 
 ## Architecture
 
-| Layer | Role |
-|-------|------|
-| `src/data/banks.ts` | Product rules (scenarios, tiered bonuses) |
-| `src/lib/calculateInterest.ts` | Interest for one account slice |
-| `src/lib/optimizePortfolio.ts` | Portfolio search across banks |
-| `src/components/` | Profile form + recommended plan UI |
+| Layer                          | Role                                      |
+| ------------------------------ | ----------------------------------------- |
+| `src/data/banks.ts`            | Product rules (scenarios, tiered bonuses) |
+| `src/lib/calculateInterest.ts` | Interest for one account slice            |
+| `src/lib/optimizePortfolio.ts` | Portfolio search across banks             |
+| `src/components/`              | Profile form + recommended plan UI        |
 
 ## Bank calculation modes
 
@@ -39,3 +39,14 @@ npm run dev
 - `npm run dev` — development server
 - `npm run build` — production build
 - `npm run test` — unit tests
+
+## Data Accuracy
+
+Data manually verified as of 22 May 2026 for the below bank products:
+
+- OCBC 360
+- UOB One
+- DBS Multiplier
+- SC BonusSaver
+- Maybank Save Up
+- UOB Stash
