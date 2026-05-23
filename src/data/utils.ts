@@ -3,9 +3,13 @@ import type {
   BonusComponent,
   InterestTier,
   QualificationScenario,
+  RewardComponent,
   ScenarioRequirements,
 } from "../types";
 
+/**
+ * Banks
+ */
 export function scenario(
   id: string,
   activities: ActivityKey[],
@@ -62,4 +66,24 @@ export function bonusWithTiers(
   requirements: ScenarioRequirements = {},
 ): BonusComponent {
   return { id, label, activities, tiers, requirements };
+}
+
+/**
+ * Credit Cards
+ */
+
+export function rewardWithTiers({
+  id,
+  minimumSpend,
+  cashbackRate,
+  pointsMultiplier,
+  milesPerDollar,
+}: RewardComponent): RewardComponent {
+  return {
+    id,
+    minimumSpend,
+    cashbackRate,
+    pointsMultiplier,
+    milesPerDollar,
+  };
 }

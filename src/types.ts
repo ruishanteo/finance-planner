@@ -1,5 +1,8 @@
-export type ActivityKey = 'salary' | 'spend' | 'save' | 'invest' | 'insure';
+export type ActivityKey = "salary" | "spend" | "save" | "invest" | "insure";
 
+/**
+ * BANKS
+ */
 export interface ActivityMeta {
   key: ActivityKey;
   label: string;
@@ -39,16 +42,16 @@ export interface BonusComponent {
 }
 
 export type CalculationStrategy =
-  | 'published-scenario'
-  | 'scenario-plus-bonuses'
-  | 'additive-bonuses';
+  | "published-scenario"
+  | "scenario-plus-bonuses"
+  | "additive-bonuses";
 
 export interface AdditiveCap {
   maxRate: number;
   maxBalance: number;
 }
 
-export type BankAccuracy = 'poor' | 'approximate' | 'good' | 'very-good';
+export type BankAccuracy = "poor" | "approximate" | "good" | "very-good";
 
 export interface BankProduct {
   id: string;
@@ -123,4 +126,48 @@ export interface OptimizedPlan {
   singleBankBaseline: number;
   uplift: number;
   upliftPercent: number;
+}
+
+/**
+ * CARDS
+ */
+export type CardRewardType = "miles" | "cashback";
+
+export type CardNetwork =
+  | "Visa"
+  | "Mastercard"
+  | "American Express"
+  | "UnionPay";
+
+export type SpendCategories =
+  | "dining"
+  | "online"
+  | "groceries"
+  | "travel"
+  | "general";
+
+export interface RewardComponent {
+  id: string;
+  minimumSpend: number;
+  cashbackRate?: number;
+  pointsMultiplier?: number;
+  milesPerDollar?: number;
+}
+
+export interface CardProduct {
+  id: string;
+  name: string;
+  annualFee: number;
+  network: CardNetwork;
+  rewardType: CardRewardType;
+  rewardComponents: RewardComponent[];
+  spendCategories: SpendCategories;
+  rewardCap?: number;
+  notes?: string;
+}
+
+export interface UserSpendingProfile {
+  rewardType: CardRewardType;
+  monthlySpend: number;
+  primaryCategory: SpendCategories;
 }
