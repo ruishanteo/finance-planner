@@ -50,3 +50,5 @@ Data manually verified as of 22 May 2026 for the below bank products:
 - SC BonusSaver
 - Maybank Save Up
 - UOB Stash
+
+Yet to verify card product details.

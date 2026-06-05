@@ -152,6 +152,8 @@ export interface RewardComponent {
   cashbackRate?: number;
   pointsMultiplier?: number;
   milesPerDollar?: number;
+  categoryRates?: Partial<Record<SpendCategories, number>>;
+  categoryCap?: number; // Cap for bonus categories (e.g. $1,000 spend limit for 4mpd)
 }
 
 export interface CardProduct {
@@ -162,7 +164,8 @@ export interface CardProduct {
   rewardType: CardRewardType;
   rewardComponents: RewardComponent[];
   spendCategories: SpendCategories;
-  rewardCap?: number;
+  rewardCap?: number; // Overall card reward cap per month (e.g. $80 cashback for OCBC 365)
+  isUobOneSpecial?: boolean; // Flag to enable UOB One's specific quarterly flat rebate logic
   notes?: string;
 }
 
@@ -170,4 +173,6 @@ export interface UserSpendingProfile {
   rewardType: CardRewardType;
   monthlySpend: number;
   primaryCategory: SpendCategories;
+  spendBreakdown: Record<SpendCategories, number>;
+  useDetailedBreakdown: boolean;
 }

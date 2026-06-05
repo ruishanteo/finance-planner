@@ -482,3 +482,276 @@
   color: #8b9bb0;
   font-size: 0.85rem;
 }
+
+/* Detailed Toggle Field */
+.detailed-toggle-field {
+  margin-bottom: 1.25rem;
+}
+
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.85rem;
+  color: #e8eef7;
+  font-weight: 500;
+}
+
+.toggle-label input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-custom {
+  position: relative;
+  width: 38px;
+  height: 20px;
+  background: #334155;
+  border-radius: 99px;
+  transition: background 0.2s ease;
+}
+
+.toggle-custom::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #cbd5e1;
+  border-radius: 50%;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.toggle-label input[type="checkbox"]:checked + .toggle-custom {
+  background: #2563eb;
+}
+
+.toggle-label input[type="checkbox"]:checked + .toggle-custom::after {
+  transform: translateX(18px);
+  background: #ffffff;
+}
+
+/* Detailed Breakdown Section */
+.detailed-breakdown-section {
+  background: #0c1118;
+  border: 1px solid #243044;
+  border-radius: 10px;
+  padding: 1.1rem;
+  margin-bottom: 1.25rem;
+}
+
+.detailed-breakdown-section h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  color: #e8eef7;
+  font-weight: 600;
+}
+
+.category-slider-field {
+  margin-bottom: 1rem;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.slider-title {
+  font-size: 0.8rem;
+  color: #9aa8bc;
+  font-weight: 500;
+}
+
+.slider-percentage {
+  font-size: 0.7rem;
+  background: #1e293b;
+  color: #3b82f6;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.spend-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  background: #1e293b;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.spend-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #3b82f6;
+  transition: transform 0.1s ease;
+}
+
+.spend-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.slider-input-wrapper {
+  position: relative;
+  width: 85px;
+}
+
+.slider-currency {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.spend-num-input {
+  background: #090d14;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #e8eef7;
+  padding: 0.35rem 0.5rem 0.35rem 1.25rem;
+  width: 100%;
+  font-size: 0.8rem;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+.spend-num-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.total-display-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #243044;
+}
+
+.total-label {
+  font-size: 0.85rem;
+  color: #9aa8bc;
+  font-weight: 500;
+}
+
+.total-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8eef7;
+}
+
+/* Card Rates Summary */
+.card-rates-summary {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+  background: #141c27;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #1e293b;
+}
+
+.rates-text {
+  color: #9aa8bc;
+  font-weight: 500;
+}
+
+/* Category Earnings Breakdown */
+.earnings-breakdown-box {
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.75rem;
+  background: #141c27;
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+}
+
+.breakdown-title {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.4rem;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.4rem;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  background: #0c1118;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.breakdown-item.empty {
+  grid-column: 1 / -1;
+  justify-content: center;
+}
+
+.item-label {
+  color: #8b9bb0;
+}
+
+.item-val {
+  font-weight: 600;
+  color: #10b981;
+}
+
+.reward-badge[data-type="miles"]
+  + .card-rates-summary
+  + .rewards-section
+  + .earnings-breakdown-box
+  .item-val {
+  color: #60a5fa;
+}
+
+/* Status Badges */
+.status-badge {
+  font-size: 0.72rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-badge.met {
+  background: #14532d33;
+  color: #86efac;
+  border: 1px solid #22c55e33;
+}
+
+.status-badge.missed {
+  background: #713f1233;
+  color: #fde047;
+  border: 1px solid #eab30833;
+}

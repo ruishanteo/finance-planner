@@ -1,74 +1,47 @@
-import type { CardProduct, CardRewardType } from "../types";
+import type { RecommendationResult } from "../lib/compareCards";
+import type { CardProduct, CardRewardType, SpendCategories } from "../types";
 
 interface CardRecommendationProps {
-  cards: CardProduct[];
+  recommendations: RecommendationResult[];
   hasGenerated: boolean;
-  userSpend: number;
 }
 
-function getRewardRateDisplay(card: CardProduct, monthlySpend: number): string {
-  if (card.rewardType === "cashback") {
-    const cashbackComp = card.rewardComponents.find(
-      (c) => c.cashbackRate !== undefined && monthlySpend >= c.minimumSpend,
-    );
-    const bestRate =
-      cashbackComp?.cashbackRate ||
-      card.rewardComponents.find(
-        (c) => c.cashbackRate !== undefined && c.minimumSpend === 0,
-      )?.cashbackRate ||
-      0;
-    return `${(bestRate * 100).toFixed(1)}% cashback`;
-  } else {
-    const milesComp = card.rewardComponents.find(
-      (c) => c.milesPerDollar !== undefined && monthlySpend >= c.minimumSpend,
-    );
-    const bestRate =
-      milesComp?.milesPerDollar ||
-      card.rewardComponents.find(
-        (c) => c.milesPerDollar !== undefined && c.minimumSpend === 0,
-      )?.milesPerDollar ||
-      0;
-    return `${bestRate.toFixed(1)}x miles`;
+function getCardRatesSummary(card: CardProduct): string {
+  if (card.isUobOneSpecial) {
+    return "Up to 3.33% flat base rebate + partner bonuses";
   }
-}
 
-// Calculate monthly reward value
-function getMonthlyRewardValue(
-  card: CardProduct,
-  monthlySpend: number,
-): number {
-  if (card.rewardType === "cashback") {
-    const cashbackComp = card.rewardComponents.find(
-      (c) => c.cashbackRate !== undefined && monthlySpend >= c.minimumSpend,
-    );
-    const rate =
-      cashbackComp?.cashbackRate ||
-      card.rewardComponents.find(
-        (c) => c.cashbackRate !== undefined && c.minimumSpend === 0,
-      )?.cashbackRate ||
-      0;
-    let value = monthlySpend * rate;
-    if (card.rewardCap) value = Math.min(value, card.rewardCap);
-    return value;
-  } else {
-    const milesComp = card.rewardComponents.find(
-      (c) => c.milesPerDollar !== undefined && monthlySpend >= c.minimumSpend,
-    );
-    const rate =
-      milesComp?.milesPerDollar ||
-      card.rewardComponents.find(
-        (c) => c.milesPerDollar !== undefined && c.minimumSpend === 0,
-      )?.milesPerDollar ||
-      0;
-    let miles = monthlySpend * rate;
-    if (card.rewardCap) miles = Math.min(miles, card.rewardCap);
-    return miles;
+  // Get rates from the bonus component (if it has categoryRates) or the first component
+  const comp =
+    card.rewardComponents.find((c) => c.categoryRates !== undefined) ||
+    card.rewardComponents[0];
+  const isMiles = card.rewardType === "miles";
+  const unit = isMiles ? " mpd" : "%";
+
+  const parts: string[] = [];
+
+  if (comp.categoryRates) {
+    Object.entries(comp.categoryRates).forEach(([cat, val]) => {
+      const displayVal = isMiles ? val.toFixed(1) : (val * 100).toFixed(0);
+      const cap = cat.charAt(0).toUpperCase() + cat.slice(1);
+      parts.push(`${displayVal}${unit} ${cap}`);
+    });
   }
+
+  const baseVal = isMiles
+    ? comp.milesPerDollar || 0.4
+    : (comp.cashbackRate || 0.003) * 100;
+
+  parts.push(
+    `${isMiles ? baseVal.toFixed(1) : baseVal.toFixed(1)}${unit} General`,
+  );
+
+  return parts.join(" • ");
 }
 
 function formatRewardValue(value: number, rewardType: CardRewardType): string {
   if (rewardType === "cashback") {
-    return `$${value.toFixed(0)} / month`;
+    return `$${value.toFixed(2)} / month`;
   } else {
     return `${Math.round(value).toLocaleString()} miles / month`;
   }
@@ -84,10 +57,17 @@ function getNetworkIcon(network: string): string {
   return icons[network] || "💳";
 }
 
+const CATEGORIES: { key: SpendCategories; label: string; emoji: string }[] = [
+  { key: "dining", label: "Dining", emoji: "🍜" },
+  { key: "online", label: "Online Shopping", emoji: "🛍️" },
+  { key: "groceries", label: "Groceries", emoji: "🛒" },
+  { key: "travel", label: "Travel", emoji: "✈️" },
+  { key: "general", label: "General Spend", emoji: "💳" },
+];
+
 export function CardRecommendation({
-  cards,
+  recommendations,
   hasGenerated,
-  userSpend,
 }: CardRecommendationProps) {
   if (!hasGenerated) {
     return (
@@ -104,7 +84,7 @@ export function CardRecommendation({
     );
   }
 
-  if (cards.length === 0) {
+  if (recommendations.length === 0) {
     return (
       <section className="panel recommendations-panel">
         <h2>📋 Recommendations</h2>
@@ -123,15 +103,26 @@ export function CardRecommendation({
     <section className="panel recommendations-panel">
       <h2>
         📋 Top recommendations
-        <span className="result-count">{cards.length} cards found</span>
+        <span className="result-count">
+          {recommendations.length} cards found
+        </span>
       </h2>
 
       <div className="cards-list">
-        {cards.map((card, index) => {
-          const monthlyReward = getMonthlyRewardValue(card, userSpend);
-          const rewardRateDisplay = getRewardRateDisplay(card, userSpend);
-          const meetsMinSpend = card.rewardComponents.some(
-            (c) => c.minimumSpend > 0 && userSpend >= c.minimumSpend,
+        {recommendations.map((rec, index) => {
+          const { card, calculation } = rec;
+          const {
+            totalMonthlyReward,
+            categoryRewards,
+            isMinimumSpendMet,
+            activeComponent,
+          } = calculation;
+
+          const hasBonusCategories = card.rewardComponents.some(
+            (c) => c.categoryRates !== undefined,
+          );
+          const hasMinSpend = card.rewardComponents.some(
+            (c) => c.minimumSpend > 0,
           );
 
           return (
@@ -159,60 +150,98 @@ export function CardRecommendation({
                   </div>
                 </div>
 
+                <div className="card-rates-summary">
+                  📋 Rates:{" "}
+                  <span className="rates-text">
+                    {getCardRatesSummary(card)}
+                  </span>
+                </div>
+
                 <div className="rewards-section">
                   <div className="reward-rate">
-                    <span className="reward-label">Earn rate</span>
-                    <span className="reward-value">{rewardRateDisplay}</span>
+                    <span className="reward-label">Active Tier</span>
+                    <span className="reward-value">
+                      {activeComponent.minimumSpend > 0
+                        ? `Spend ≥ $${activeComponent.minimumSpend}`
+                        : "No minimum spend"}
+                    </span>
                   </div>
                   <div className="monthly-value">
                     <span className="reward-label">Monthly reward value</span>
                     <span className="reward-value highlight">
-                      {formatRewardValue(monthlyReward, card.rewardType)}
+                      {formatRewardValue(totalMonthlyReward, card.rewardType)}
                     </span>
                   </div>
                 </div>
 
-                {card.rewardComponents.length > 1 && (
-                  <div className="tiers-section">
-                    <span className="tiers-label">🏆 Bonus tiers:</span>
-                    <div className="tiers-list">
-                      {card.rewardComponents
-                        .map((comp) => {
-                          if (comp.minimumSpend === 0) return null;
-                          const rewardText =
-                            card.rewardType === "cashback"
-                              ? `${((comp.cashbackRate || 0) * 100).toFixed(1)}%`
-                              : `${comp.milesPerDollar}x miles`;
-                          return (
-                            <span
-                              key={comp.id}
-                              className={`tier ${userSpend >= comp.minimumSpend ? "active" : ""}`}
-                            >
-                              {rewardText} ≥ ${comp.minimumSpend}
-                            </span>
-                          );
-                        })
-                        .filter(Boolean)}
-                    </div>
+                {/* Category Earnings Breakdown */}
+                <div className="earnings-breakdown-box">
+                  <span className="breakdown-title">
+                    🎁 Monthly Earnings Breakdown:
+                  </span>
+                  <div className="breakdown-grid">
+                    {CATEGORIES.map(({ key, label, emoji }) => {
+                      const reward = categoryRewards[key] || 0;
+                      if (reward <= 0) return null;
+
+                      const formatted =
+                        card.rewardType === "cashback"
+                          ? `$${reward.toFixed(2)}`
+                          : `${Math.round(reward).toLocaleString()} miles`;
+
+                      return (
+                        <div key={key} className="breakdown-item">
+                          <span className="item-label">
+                            {emoji} {label}:
+                          </span>
+                          <span className="item-val">{formatted}</span>
+                        </div>
+                      );
+                    })}
+                    {Object.values(categoryRewards).every((v) => v <= 0) && (
+                      <div className="breakdown-item empty">
+                        <span className="item-val">
+                          $0.00 (Spend is below thresholds)
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Minimum Spend Eligibility Notification */}
+                {hasMinSpend && (
+                  <div
+                    className={`status-badge ${isMinimumSpendMet ? "met" : "missed"}`}
+                  >
+                    {isMinimumSpendMet ? (
+                      <span>✓ Minimum monthly spend requirement met</span>
+                    ) : (
+                      <span>
+                        ⚠️ Spend at least $
+                        {Math.min(
+                          ...card.rewardComponents
+                            .map((c) => c.minimumSpend)
+                            .filter((m) => m > 0),
+                        )}{" "}
+                        to unlock bonus rates. (Earning base rate only)
+                      </span>
+                    )}
                   </div>
                 )}
 
-                {!meetsMinSpend &&
-                  card.rewardComponents.some((c) => c.minimumSpend > 0) && (
-                    <div className="warning-note">
-                      ⚡ Spend $
-                      {Math.min(
-                        ...card.rewardComponents
-                          .map((c) => c.minimumSpend)
-                          .filter((m) => m > 0),
-                      )}{" "}
-                      to unlock bonus rate
-                    </div>
-                  )}
-
-                {card.rewardCap && (
+                {/* Category specific caps details */}
+                {activeComponent.categoryCap !== undefined && (
                   <div className="cap-note">
-                    📊 Annual reward cap:{" "}
+                    📊 Bonus cap: Capped at{" "}
+                    {card.rewardType === "miles"
+                      ? `$${activeComponent.categoryCap} spend/month`
+                      : `$${activeComponent.categoryCap} cashback/category/month`}
+                  </div>
+                )}
+
+                {card.rewardCap !== undefined && !hasBonusCategories && (
+                  <div className="cap-note">
+                    📊 Monthly reward limit: Capped at{" "}
                     {card.rewardType === "cashback"
                       ? `$${card.rewardCap}`
                       : `${card.rewardCap.toLocaleString()} miles`}
